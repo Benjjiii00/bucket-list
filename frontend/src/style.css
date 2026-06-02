@@ -313,6 +313,17 @@ textarea {
   border-color: rgba(185, 205, 221, 0.16);
 }
 
+.world-map__button--danger {
+  border-color: rgba(244, 74, 96, 0.44);
+  background: linear-gradient(180deg, rgba(244, 74, 96, 0.24), rgba(244, 74, 96, 0.14));
+  color: #ff9ca3;
+}
+
+.world-map__button--danger:hover:not(:disabled) {
+  border-color: rgba(244, 74, 96, 0.68);
+  background: linear-gradient(180deg, rgba(244, 74, 96, 0.34), rgba(244, 74, 96, 0.24));
+}
+
 .world-map__places {
   margin-top: 2px;
 }

@@ -232,6 +232,26 @@ async function saveDraftPlace() {
   }
 }
 
+async function deletePlace(placeId: number) {
+  if (!confirm('Möchtest du diesen Ort wirklich löschen?')) {
+    return
+  }
+
+  apiError.value = null
+
+  try {
+    await axios.delete(`/api/places/${placeId}`)
+    places.value = places.value.filter((p) => p.id !== placeId)
+    if (selectedPlace.value?.id === placeId) {
+      selectedPlace.value = null
+    }
+    refreshPlaceLayer()
+  } catch (error) {
+    console.error(error)
+    apiError.value = 'Der Ort konnte nicht gelöscht werden.'
+  }
+}
+
 onMounted(async () => {
   if (!mapElement.value) {
     return
@@ -312,10 +332,10 @@ onBeforeUnmount(() => {
   <section class="world-map">
     <header class="world-map__hero">
       <div>
-        <p class="world-map__eyebrow">Sprint 2 · Bucket List</p>
+        <p class="world-map__eyebrow">Bucket List</p>
         <h1 class="world-map__title">Interaktive Weltkarte</h1>
         <p class="world-map__lead">
-          Klick auf ein Land oder setze einen Marker auf der Karte. Orte werden jetzt aus der API
+          Klick auf ein Land oder setze einen Marker auf der Karte. Orte werden aus der API
           geladen und im Backend gespeichert.
         </p>
       </div>
@@ -390,6 +410,12 @@ onBeforeUnmount(() => {
           </li>
         </ul>
 
+        <div v-if="selectedPlace" class="world-map__actions">
+          <button class="world-map__button world-map__button--danger" type="button" @click="deletePlace(selectedPlace.id)">
+            Ort löschen
+          </button>
+        </div>
+
         <section class="world-map__form">
           <div>
             <h3>Neuen Ort speichern</h3>
@@ -458,10 +484,6 @@ onBeforeUnmount(() => {
           <li>
             <span class="world-map__meta">Auswahl</span>
             <span class="world-map__value">{{ selectionLabel }}</span>
-          </li>
-          <li>
-            <span class="world-map__meta">Sprint-Ziel</span>
-            <span class="world-map__value">Backend + Orte speichern</span>
           </li>
         </ul>
       </aside>

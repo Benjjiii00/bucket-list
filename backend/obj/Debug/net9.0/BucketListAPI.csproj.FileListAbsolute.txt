@@ -130,3 +130,4 @@ C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\MySqlConnector.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Pomelo.EntityFrameworkCore.MySql.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\obj\Debug\net9.0\BucketListAPI.sourcelink.json
