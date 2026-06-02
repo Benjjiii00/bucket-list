@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
 
 type CountryProperties = Record<string, unknown> & {
@@ -50,6 +50,8 @@ const isMapReady = ref(false)
 const countryCount = ref(0)
 const places = ref<TravelPlace[]>([])
 const draftLocation = ref<CoordinateDraft | null>(null)
+const draftLatitudeStr = ref('')
+const draftLongitudeStr = ref('')
 const draftName = ref('')
 const draftCountry = ref('')
 const draftRegion = ref('')
@@ -183,6 +185,9 @@ function setDraftLocation(latitude: number, longitude: number) {
   if (!draftCountry.value && selectedCountry.value) {
     draftCountry.value = selectedCountry.value
   }
+  // keep string inputs in sync when user clicks the map
+  draftLatitudeStr.value = latitude.toString()
+  draftLongitudeStr.value = longitude.toString()
 }
 
 function focusPlace(place: TravelPlace) {
@@ -260,7 +265,7 @@ onMounted(async () => {
   map = L.map(mapElement.value, {
     zoomControl: true,
     minZoom: 2,
-    maxZoom: 6,
+    maxZoom: 19,
     worldCopyJump: true,
   }).setView([18, 0], 2)
 
@@ -275,6 +280,27 @@ onMounted(async () => {
     setDraftLocation(event.latlng.lat, event.latlng.lng)
     selectedPlace.value = null
     refreshPlaceLayer()
+  })
+
+  // keep draft string inputs synced with draftLocation
+  watch(draftLocation, (loc) => {
+    if (loc) {
+      draftLatitudeStr.value = loc.latitude.toString()
+      draftLongitudeStr.value = loc.longitude.toString()
+    } else {
+      draftLatitudeStr.value = ''
+      draftLongitudeStr.value = ''
+    }
+  })
+
+  watch([draftLatitudeStr, draftLongitudeStr], ([latStr, lngStr]) => {
+    const lat = parseFloat(latStr)
+    const lng = parseFloat(lngStr)
+    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+      draftLocation.value = { latitude: lat, longitude: lng }
+    } else {
+      draftLocation.value = null
+    }
   })
 
   try {
