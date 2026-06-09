@@ -139,7 +139,8 @@ function selectPlace(place: TravelPlace) {
   selectedPlace.value = place
   selectedCountry.value = place.country ?? selectedCountry.value
   if (map) {
-    map.flyTo([place.latitude, place.longitude], Math.max(map.getZoom(), 5), { animate: true })
+    // Set view to the place coordinates with a good zoom level, centered properly
+    map.setView([place.latitude, place.longitude], 6, { animate: true })
   }
   refreshPlaceLayer()
 }
@@ -264,6 +265,7 @@ onMounted(async () => {
 
   map = L.map(mapElement.value, {
     zoomControl: true,
+    dragging: false,
     minZoom: 2,
     maxZoom: 19,
     worldCopyJump: true,

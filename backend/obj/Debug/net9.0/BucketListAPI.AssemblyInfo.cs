@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BucketListAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+46b01e5d9d7144b741adfbe16d8f6e1c180530f9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74e603b61237e8edcd70e1174dc85c2c78b17516")]
 [assembly: System.Reflection.AssemblyProductAttribute("BucketListAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BucketListAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

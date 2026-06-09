@@ -131,3 +131,11 @@ C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\MySqlConnector.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Pomelo.EntityFrameworkCore.MySql.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\obj\Debug\net9.0\BucketListAPI.sourcelink.json
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll

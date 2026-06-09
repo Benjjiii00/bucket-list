@@ -12,6 +12,8 @@ public class BucketListDbContext : DbContext
 
     public DbSet<TravelPlace> TravelPlaces => Set<TravelPlace>();
 
+    public DbSet<User> Users => Set<User>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TravelPlace>(entity =>
@@ -22,6 +24,14 @@ public class BucketListDbContext : DbContext
             entity.Property(place => place.Region).HasMaxLength(120);
             entity.Property(place => place.Notes).HasMaxLength(1000);
             entity.Property(place => place.Status).HasConversion<string>().HasMaxLength(32);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(user => user.Id);
+            entity.Property(user => user.Email).HasMaxLength(255).IsRequired();
+            entity.Property(user => user.PasswordHash).IsRequired();
+            entity.HasIndex(user => user.Email).IsUnique();
         });
     }
 }
