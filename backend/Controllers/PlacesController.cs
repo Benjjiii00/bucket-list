@@ -1,5 +1,6 @@
 using BucketListAPI.Models;
 using BucketListAPI.ORM;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -73,6 +74,7 @@ public class PlacesController : ControllerBase
         existingPlace.Longitude = place.Longitude;
         existingPlace.Status = place.Status;
         existingPlace.Notes = NormalizeOptionalText(place.Notes);
+        existingPlace.PhotoUrl = NormalizeOptionalText(place.PhotoUrl);
         existingPlace.UpdatedAtUtc = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
@@ -93,6 +95,43 @@ public class PlacesController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpPost("{id:int}/photo")]
+    public async Task<ActionResult<TravelPlace>> UploadPhotoAsync(int id, IFormFile file)
+    {
+        if (file is null || file.Length is 0)
+        {
+            return BadRequest(new { message = "Keine Datei hochgeladen." });
+        }
+
+        var place = await _dbContext.TravelPlaces.FindAsync(id);
+        if (place is null)
+        {
+            return NotFound();
+        }
+
+        var extension = Path.GetExtension(file.FileName);
+        var fileName = $"{Guid.NewGuid()}{extension}";
+        var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+        if (!Directory.Exists(uploadsDir))
+        {
+            Directory.CreateDirectory(uploadsDir);
+        }
+
+        var filePath = Path.Combine(uploadsDir, fileName);
+
+        await using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        place.PhotoUrl = $"/uploads/{fileName}";
+        place.UpdatedAtUtc = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(place);
     }
 
     private static bool IsValidPlace(TravelPlace place, out string? validationError)

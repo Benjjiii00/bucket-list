@@ -139,3 +139,4 @@ C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Benni\Desktop\WEB 4AHWII\bucket-list\backend\bin\Debug\net9.0\BucketListAPI.staticwebassets.runtime.json

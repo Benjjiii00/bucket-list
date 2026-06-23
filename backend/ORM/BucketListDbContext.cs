@@ -24,6 +24,7 @@ public class BucketListDbContext : DbContext
             entity.Property(place => place.Region).HasMaxLength(120);
             entity.Property(place => place.Notes).HasMaxLength(1000);
             entity.Property(place => place.Status).HasConversion<string>().HasMaxLength(32);
+            entity.Property(place => place.PhotoUrl).HasMaxLength(500);
         });
 
         modelBuilder.Entity<User>(entity =>

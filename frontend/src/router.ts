@@ -6,6 +6,7 @@ import AuthService from './services/authService';
 const Home = () => import('./components/WorldMap.vue');
 const Register = () => import('./components/Register.vue');
 const Login = () => import('./components/Login.vue');
+const PlaceDetail = () => import('./components/PlaceDetail.vue');
 
 const routes = [
   {
@@ -25,6 +26,12 @@ const routes = [
     name: 'Login',
     component: Login,
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/places/:id',
+    name: 'PlaceDetail',
+    component: PlaceDetail,
+    meta: { requiresAuth: true }
   }
 ];
 
