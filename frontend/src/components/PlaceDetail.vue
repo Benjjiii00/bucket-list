@@ -76,11 +76,6 @@ async function handleFileUpload(event: Event) {
     input.value = ''
   }
 }
-
-function getStatusLabel(s: 'bucketList' | 'visited'): string {
-  return s === 'visited' ? 'Besucht' : 'Bucket List'
-}
-
 function goBack() {
   router.push('/')
 }
