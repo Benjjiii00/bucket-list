@@ -12,6 +12,7 @@ export interface Trail {
   trailType: string | null
   description: string | null
   polyline: string | null
+  rating?: number | null
   createdAtUtc: string
   updatedAtUtc: string
 }
@@ -25,6 +26,7 @@ export interface UpdateTrailRequest {
   trailType: string | null
   description: string | null
   polyline: string | null
+  rating?: number | null
 }
 
 class TrailService {
@@ -45,6 +47,13 @@ class TrailService {
 
   async update(id: number, data: UpdateTrailRequest): Promise<Trail> {
     const response = await axios.put<Trail>(`${API_URL}/${id}`, data)
+    return response.data
+  }
+
+  async setRating(id: number, rating: number | null): Promise<Trail> {
+    const response = await axios.patch<Trail>(`${API_URL}/${id}/rating`, rating, {
+      headers: { 'Content-Type': 'application/json' }
+    })
     return response.data
   }
 

@@ -63,6 +63,7 @@ public class BucketListDbContext : DbContext
             entity.Property(trail => trail.TrailType).HasMaxLength(64);
             entity.Property(trail => trail.Description).HasMaxLength(2000);
             entity.Property(trail => trail.Polyline).HasMaxLength(8000);
+            entity.Property(trail => trail.Rating);
         });
     }
 }

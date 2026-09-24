@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import placesService from '../services/placesService'
 import type { TravelPlace } from '../services/placesService'
+import weatherService, { type WeatherData } from '../services/weatherService'
 
 const route = useRoute()
 const router = useRouter()
@@ -11,9 +12,12 @@ const place = ref<TravelPlace | null>(null)
 const notes = ref('')
 const status = ref<'bucketList' | 'visited'>('bucketList')
 const photoUrl = ref<string | null>(null)
-const activeTab = ref<'info' | 'notes' | 'photos'>('info')
+const activeTab = ref<'info' | 'weather' | 'notes' | 'photos'>('info')
+const weather = ref<WeatherData | null>(null)
+const isLoadingWeather = ref(false)
 const isSaving = ref(false)
 const isUploading = ref(false)
+const isDeleting = ref(false)
 const error = ref<string | null>(null)
 const success = ref<string | null>(null)
 
@@ -29,10 +33,26 @@ onMounted(async () => {
     notes.value = data.notes ?? ''
     status.value = data.status
     photoUrl.value = data.photoUrl
+
+    // Load live weather
+    if (data.latitude && data.longitude) {
+      loadWeather(data.latitude, data.longitude)
+    }
   } catch {
     error.value = 'Ort konnte nicht geladen werden.'
   }
 })
+
+async function loadWeather(lat: number, lon: number) {
+  isLoadingWeather.value = true
+  try {
+    weather.value = await weatherService.getWeather(lat, lon)
+  } catch {
+    // Weather load failure non-fatal
+  } finally {
+    isLoadingWeather.value = false
+  }
+}
 
 async function save() {
   if (!place.value) return
@@ -51,12 +71,26 @@ async function save() {
       photoUrl: photoUrl.value,
     })
     place.value = updated
-    success.value = 'Gespeichert!'
+    success.value = 'Erfolgreich gespeichert!'
     setTimeout(() => (success.value = null), 2500)
   } catch {
     error.value = 'Speichern fehlgeschlagen.'
   } finally {
     isSaving.value = false
+  }
+}
+
+async function handleDelete() {
+  if (!place.value) return
+  if (!confirm(`Möchtest du "${place.value.name}" wirklich löschen?`)) return
+  isDeleting.value = true
+  try {
+    await placesService.delete(place.value.id)
+    router.push('/')
+  } catch {
+    error.value = 'Löschen fehlgeschlagen.'
+  } finally {
+    isDeleting.value = false
   }
 }
 
@@ -69,6 +103,8 @@ async function handleFileUpload(event: Event) {
     const updated = await placesService.uploadPhoto(place.value.id, input.files[0])
     place.value = updated
     photoUrl.value = updated.photoUrl
+    success.value = 'Foto erfolgreich hochgeladen!'
+    setTimeout(() => (success.value = null), 2500)
   } catch {
     error.value = 'Foto-Upload fehlgeschlagen.'
   } finally {
@@ -76,8 +112,14 @@ async function handleFileUpload(event: Event) {
     input.value = ''
   }
 }
+
 function goBack() {
   router.push('/')
+}
+
+function jumpToMap() {
+  if (!place.value) return
+  router.push({ path: '/', query: { placeId: place.value.id.toString() } })
 }
 </script>
 
@@ -104,8 +146,9 @@ function goBack() {
 
       <div class="detail-tabs">
         <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'info' }" @click="activeTab = 'info'">INFO</button>
-        <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'notes' }" @click="activeTab = 'notes'">NOTES</button>
-        <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'photos' }" @click="activeTab = 'photos'">PHOTOS</button>
+        <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'weather' }" @click="activeTab = 'weather'">WETTER</button>
+        <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'notes' }" @click="activeTab = 'notes'">NOTIZEN</button>
+        <button class="detail-tab" :class="{ 'detail-tab--active': activeTab === 'photos' }" @click="activeTab = 'photos'">FOTOS</button>
       </div>
 
       <!-- INFO tab -->
@@ -132,10 +175,48 @@ function goBack() {
         <label class="detail-field">
           <span>Status</span>
           <select v-model="status">
-            <option value="bucketList">Bucket List</option>
-            <option value="visited">Besucht</option>
+            <option value="bucketList">★ Bucket List</option>
+            <option value="visited">✓ Besucht</option>
           </select>
         </label>
+      </div>
+
+      <!-- WEATHER tab -->
+      <div v-if="activeTab === 'weather'" class="detail-tab-content">
+        <div v-if="isLoadingWeather" class="weather-loading">
+          <p>Wetterdaten werden geladen …</p>
+        </div>
+        <div v-else-if="weather" class="weather-card">
+          <div class="weather-main">
+            <span class="weather-icon">{{ weather.icon }}</span>
+            <div class="weather-info">
+              <span class="weather-temp">{{ weather.temperature }}°C</span>
+              <span class="weather-desc">{{ weather.description }} (Gefühlt {{ weather.apparentTemperature }}°C)</span>
+            </div>
+          </div>
+          <div class="weather-grid">
+            <div class="weather-metric">
+              <span class="weather-label">Luftfeuchtigkeit</span>
+              <span class="weather-value">{{ weather.humidity }}%</span>
+            </div>
+            <div class="weather-metric">
+              <span class="weather-label">Wind</span>
+              <span class="weather-value">{{ weather.windSpeed }} km/h</span>
+            </div>
+          </div>
+
+          <h4 class="forecast-title" v-if="weather.daily && weather.daily.length">3-Tage-Vorhersage</h4>
+          <div class="forecast-grid" v-if="weather.daily && weather.daily.length">
+            <div v-for="day in weather.daily" :key="day.date" class="forecast-day">
+              <span class="forecast-date">{{ new Date(day.date).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' }) }}</span>
+              <span class="forecast-icon">{{ day.icon }}</span>
+              <span class="forecast-temps">{{ day.maxTemp }}° / {{ day.minTemp }}°</span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="detail-hint">
+          Wetterdaten konnten nicht abgerufen werden.
+        </div>
       </div>
 
       <!-- NOTES tab -->
@@ -158,10 +239,20 @@ function goBack() {
       <p v-if="error" class="detail-notice detail-notice--error">{{ error }}</p>
       <p v-if="success" class="detail-notice detail-notice--success">{{ success }}</p>
 
-      <button class="detail-cta" :disabled="isSaving" @click="save">
-        <span class="material-symbols-outlined">save</span>
-        {{ isSaving ? 'Speichert …' : 'Speichern' }}
-      </button>
+      <div class="detail-actions">
+        <button class="detail-cta" :disabled="isSaving" @click="save">
+          <span class="material-symbols-outlined">save</span>
+          {{ isSaving ? 'Speichert …' : 'Speichern' }}
+        </button>
+        <button class="detail-btn-secondary" @click="jumpToMap">
+          <span class="material-symbols-outlined">map</span>
+          Auf Karte zeigen
+        </button>
+        <button class="detail-btn-danger" :disabled="isDeleting" @click="handleDelete">
+          <span class="material-symbols-outlined">delete</span>
+          Löschen
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -424,5 +515,172 @@ function goBack() {
 .detail-cta:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: var(--space-xs);
+}
+
+.detail-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.detail-btn-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.detail-btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-error);
+  background: transparent;
+  color: var(--color-error);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.detail-btn-danger:hover:not(:disabled) {
+  background: var(--color-error-container);
+}
+
+/* Weather Styles */
+.weather-loading {
+  padding: var(--space-md);
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+}
+
+.weather-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.weather-icon {
+  font-size: 36px;
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-temp {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.weather-desc {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.weather-metric {
+  background: var(--color-surface-container-low);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weather-label {
+  font-size: 11px;
+  color: var(--color-outline);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.weather-value {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-on-surface);
+}
+
+.forecast-title {
+  margin: 6px 0 2px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--color-on-surface-variant);
+}
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.forecast-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  text-align: center;
+}
+
+.forecast-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.forecast-icon {
+  font-size: 20px;
+}
+
+.forecast-temps {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 </style>

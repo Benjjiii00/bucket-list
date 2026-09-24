@@ -74,6 +74,29 @@ public class TrailsController : ControllerBase
         existingTrail.TrailType = NormalizeOptionalText(trail.TrailType);
         existingTrail.Description = NormalizeOptionalText(trail.Description);
         existingTrail.Polyline = NormalizeOptionalText(trail.Polyline);
+        existingTrail.Rating = trail.Rating is >= 1 and <= 5 ? trail.Rating : null;
+        existingTrail.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(existingTrail);
+    }
+
+    [HttpPatch("{id:int}/rating")]
+    public async Task<ActionResult<Trail>> UpdateRatingAsync(int id, [FromBody] int? rating)
+    {
+        if (rating.HasValue && (rating.Value < 1 || rating.Value > 5))
+        {
+            return BadRequest("Die Bewertung muss zwischen 1 und 5 Sternen liegen.");
+        }
+
+        var existingTrail = await _dbContext.Trails.FindAsync(id);
+        if (existingTrail is null)
+        {
+            return NotFound();
+        }
+
+        existingTrail.Rating = rating;
         existingTrail.UpdatedAtUtc = DateTime.UtcNow;
 
         await _dbContext.SaveChangesAsync();
@@ -113,6 +136,12 @@ public class TrailsController : ControllerBase
         if (trail.Length < 0)
         {
             validationError = "Die Länge darf nicht negativ sein.";
+            return false;
+        }
+
+        if (trail.Rating.HasValue && (trail.Rating < 1 || trail.Rating > 5))
+        {
+            validationError = "Die Bewertung muss zwischen 1 und 5 Sternen liegen.";
             return false;
         }
 

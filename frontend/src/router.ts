@@ -7,12 +7,19 @@ const Home = () => import('./components/WorldMap.vue');
 const Register = () => import('./components/Register.vue');
 const Login = () => import('./components/Login.vue');
 const PlaceDetail = () => import('./components/PlaceDetail.vue');
+const Statistics = () => import('./components/Statistics.vue');
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/statistics',
+    name: 'Statistics',
+    component: Statistics,
     meta: { requiresAuth: true }
   },
   {

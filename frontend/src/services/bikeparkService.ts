@@ -11,6 +11,7 @@ export interface TrailRef {
   trailType: string | null
   description: string | null
   polyline: string | null
+  rating?: number | null
   bikeparkId: number | null
   createdAtUtc: string
   updatedAtUtc: string

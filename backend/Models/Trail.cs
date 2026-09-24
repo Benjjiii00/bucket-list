@@ -22,6 +22,8 @@ public class Trail
 
     public string? Polyline { get; set; }
 
+    public int? Rating { get; set; }
+
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime UpdatedAtUtc { get; set; }

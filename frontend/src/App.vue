@@ -23,12 +23,13 @@ const handleLogout = () => {
   <div class="app-shell">
     <nav class="topnav">
       <div class="topnav__inner">
-        <div class="topnav__brand">
+        <router-link to="/" class="topnav__brand">
           <span class="topnav__logo">&#x1F3D4;</span>
-          <span class="topnav__title">Wilderness &amp; Waypoints</span>
-        </div>
+          <span class="topnav__title">Bucket List</span>
+        </router-link>
         <div class="topnav__links" v-if="isAuthenticated">
-          <a href="/" class="topnav__link topnav__link--active">Map</a>
+          <router-link to="/" class="topnav__link" exact-active-class="topnav__link--active">🗺️ Karte</router-link>
+          <router-link to="/statistics" class="topnav__link" active-class="topnav__link--active">📊 Statistiken</router-link>
         </div>
         <div class="topnav__actions">
           <template v-if="!isAuthenticated">
@@ -79,6 +80,8 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .topnav__logo {

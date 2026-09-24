@@ -38,9 +38,18 @@ class PlacesService {
     return response.data;
   }
 
+  async create(data: UpdatePlaceRequest): Promise<TravelPlace> {
+    const response = await axios.post<TravelPlace>(API_URL, data);
+    return response.data;
+  }
+
   async update(id: number, data: UpdatePlaceRequest): Promise<TravelPlace> {
     const response = await axios.put<TravelPlace>(`${API_URL}/${id}`, data);
     return response.data;
+  }
+
+  async delete(id: number): Promise<void> {
+    await axios.delete(`${API_URL}/${id}`);
   }
 
   async uploadPhoto(id: number, file: File): Promise<TravelPlace> {
