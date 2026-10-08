@@ -1059,7 +1059,7 @@ onBeforeUnmount(() => {
               <template v-else>{{ selectedPlace?.name ?? 'Details' }}</template>
             </h2>
             <p class="explorer__panel-subtitle">
-              {{ panelEntity === 'bikepark' ? 'Bikepark' : panelEntity === 'trail' ? 'Trail' : 'Wilderness Explorer' }}
+              {{ panelEntity === 'bikepark' ? 'Bikepark' : panelEntity === 'trail' ? 'Trail' : 'ness Explorer' }}
             </p>
           </div>
         </div>
